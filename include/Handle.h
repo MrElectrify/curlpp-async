@@ -6,6 +6,8 @@
  *  12/29/19 16:11
  */
 
+#include <curl/curl.h>
+
 namespace CurlPPAsync
 {
     // Handle allows the spawning of WebClients which asynchronously perform web requests
@@ -13,6 +15,9 @@ namespace CurlPPAsync
     {
     public:
 
+    private:
+        CURL* m_pCurl;
+        CURLM* m_pMulti;
     };
 }
 
