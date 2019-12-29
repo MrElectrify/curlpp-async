@@ -14,7 +14,13 @@ namespace CurlPPAsync
     class Handle
     {
     public:
+        Handle();
+        Handle(Handle&& other);
 
+        Handle(const Handle& other) = delete;
+        Handle& operator=(const Handle& other) = delete;
+
+        ~Handle();
     private:
         CURL* m_pCurl;
         CURLM* m_pMulti;
