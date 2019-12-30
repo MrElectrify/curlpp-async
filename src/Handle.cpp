@@ -161,5 +161,8 @@ void Handle::Run()
 				callback(msg->data.result);
 			}
 		}
+
+		// call again for any outstanding requests
+		curl_multi_perform(m_multi, &still_running);
 	}
 }
