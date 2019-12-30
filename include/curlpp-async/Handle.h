@@ -7,7 +7,7 @@
  */
 
 // CURLPP-Async
-#include <WebClient.h>
+#include <curlpp-async/WebClient.h>
 
 // CURL
 #include <curl/curl.h>
