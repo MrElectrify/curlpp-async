@@ -47,22 +47,22 @@ namespace CURLPPAsync
         // Starts a synchronous GET operation on a URL, and returns the result.
         // Note that there must not already be an in-progress operation on the object.
         // std::runtime_error will be thrown in this case.
-        CURLcode GET(const std::string& url, const std::vector<Header>* const headers = nullptr);
+        CURLcode GET(const std::string& url, const std::vector<Header>& customHeaders);
 
         // Starts an Asynchronous GET operation on a URL, and calls recvCallback on completion.
         // Note that there must not already be an in-progress operation on the object.
         // std::runtime_error will be thrown in this case.
-        void AsyncGET(const std::string& url, RecvCallback_t&& recvCallback, const std::vector<Header>* const headers = nullptr);
+        void AsyncGET(const std::string& url, const std::vector<Header>& customHeaders, RecvCallback_t&& recvCallback);
 
         // Starts a synchronous POST operation on a URL, and returns the result.
         // Note that there must not already be an in-progress operation on the object.
         // std::runtime_error will be thrown in this case.
-        CURLcode POST(const std::string& url, const std::string& postData, const std::vector<Header>* const headers = nullptr);
+        CURLcode POST(const std::string& url, const std::string& postData, const std::vector<Header>& customHeaders);
 
         // Starts an Asynchronous POST operation on a URL, and calls recvCallback on completion.
         // Note that there must not already be an in-progress operation on the object.
         // std::runtime_error will be thrown in this case.
-        void AsyncPOST(const std::string& url, const std::string& postData, RecvCallback_t&& recvCallback, const std::vector<Header>* const headers = nullptr);
+        void AsyncPOST(const std::string& url, const std::string& postData, const std::vector<Header>& customHeaders, RecvCallback_t&& recvCallback);
 
         // Sets an option
         template<typename T>

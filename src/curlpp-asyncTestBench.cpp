@@ -15,7 +15,7 @@ int main()
 
 	webClient.SetOpt(CURLOPT_FOLLOWLOCATION, true);
 	webClient.AsyncGET("https://google.com/",
-		[&webClient](const CURLcode res)
+		{}, [&webClient](const CURLcode res)
 		{
 			if (res != CURLE_OK)
 			{
@@ -32,7 +32,7 @@ int main()
 
 	// now do the same thing, synchronously
 	webClient2.SetOpt(CURLOPT_FOLLOWLOCATION, true);
-	CURLcode res = webClient2.GET("https://google.com/");
+	CURLcode res = webClient2.GET("https://google.com/", {});
 	if (res != CURLE_OK)
 	{
 		std::cerr << "Sync Res: " << res << '\n';

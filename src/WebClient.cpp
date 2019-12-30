@@ -41,7 +41,7 @@ WebClient::~WebClient() noexcept
 }
 
 CURLcode WebClient::GET(const std::string& url, 
-	const std::vector<Header>* const pHeaders)
+	const std::vector<Header>& headers)
 {
 	curl_easy_setopt(m_curl, CURLOPT_URL, url.data());
 
@@ -54,11 +54,10 @@ CURLcode WebClient::GET(const std::string& url,
 	curl_easy_setopt(m_curl, CURLOPT_CAINFO, "cacert.pem");
 
 	// add custom headers if they exist
-	if (pHeaders != nullptr &&
-		pHeaders->size() != 0)
+	if (headers.size() != 0)
 	{
 		curl_slist* pList = nullptr;
-		for (auto& header : *pHeaders)
+		for (auto& header : headers)
 		{
 			// concatenate the headers and add them to a list
 			std::string headerStr = header.m_fieldName + ": " + header.m_data;
@@ -76,8 +75,8 @@ CURLcode WebClient::GET(const std::string& url,
 }
 
 void WebClient::AsyncGET(const std::string& url,
-	RecvCallback_t&& recvCallback, 
-	const std::vector<Header>* const pHeaders)
+	const std::vector<Header>& headers,
+	RecvCallback_t&& recvCallback)
 {
 	curl_easy_setopt(m_curl, CURLOPT_URL, url.data());
 
@@ -90,11 +89,10 @@ void WebClient::AsyncGET(const std::string& url,
 	curl_easy_setopt(m_curl, CURLOPT_CAINFO, "cacert.pem");
 
 	// add custom headers if they exist
-	if (pHeaders != nullptr &&
-		pHeaders->size() != 0)
+	if (headers.size() != 0)
 	{
 		curl_slist* pList = nullptr;
-		for (auto& header : *pHeaders)
+		for (auto& header : headers)
 		{
 			// concatenate the headers and add them to a list
 			std::string headerStr = header.m_fieldName + ": " + header.m_data;
@@ -114,21 +112,21 @@ void WebClient::AsyncGET(const std::string& url,
 
 CURLcode WebClient::POST(const std::string& url, 
 	const std::string& postData,
-	const std::vector<Header>* const pHeaders)
+	const std::vector<Header>& headers)
 {
 	curl_easy_setopt(m_curl, CURLOPT_POSTFIELDS, postData.c_str());
 
-	return GET(url, pHeaders);
+	return GET(url, headers);
 }
 
 void WebClient::AsyncPOST(const std::string& url,
 	const std::string& postData,
-	RecvCallback_t&& recvCallback,
-	const std::vector<Header>* const pHeaders)
+	const std::vector<Header>& headers,
+	RecvCallback_t&& recvCallback)
 {
 	curl_easy_setopt(m_curl, CURLOPT_POSTFIELDS, postData.c_str());
 
-	return AsyncGET(url, std::move(recvCallback), pHeaders);
+	return AsyncGET(url, headers, std::move(recvCallback));
 }
 
 size_t WebClient::WriteCallback(char* ptr, size_t size, size_t nmemb, void* userData)

@@ -51,8 +51,8 @@ namespace CURLPPAsync
         friend WebClient::WebClient(WebClient&&) noexcept;
         friend WebClient& WebClient::operator=(WebClient&&) noexcept;
         friend WebClient::~WebClient() noexcept;
-        friend CURLcode WebClient::GET(const std::string&, const std::vector<Header>* const);
-        friend void WebClient::AsyncGET(const std::string&, WebClient::RecvCallback_t&&, const std::vector<Header>* const);
+        friend CURLcode WebClient::GET(const std::string&, const std::vector<WebClient::Header>&);
+        friend void WebClient::AsyncGET(const std::string&, const std::vector<WebClient::Header>&, WebClient::RecvCallback_t&&);
     };
 }
 
