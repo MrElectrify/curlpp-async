@@ -1,12 +1,117 @@
 #include <Handle.h>
+#include <WebClient.h>
 
 #include <iostream>
 
 using CURLPPAsync::Handle;
+using CURLPPAsync::WebClient;
 
 int main()
 {
 	Handle handle;
+	WebClient webClient(handle);
+	WebClient webClient2(handle);
+	WebClient webClient3(handle);
+
+	webClient.AsyncGET("https://www.google.com/",
+		[&webClient](const CURLcode res)
+		{
+			if (res != CURLE_OK)
+			{
+				std::cerr << "Res: " << res << '\n';
+				return;
+			}
+
+			std::cout << "Got google\n";
+
+			// lets get another one
+			webClient.AsyncGET("https://www.google.com/",
+				[&webClient](const CURLcode res)
+				{
+					if (res != CURLE_OK)
+					{
+						std::cerr << "Res: " << res << '\n';
+						return;
+					}
+
+					std::cout << "Got google again\n";
+				});
+
+		});
+	webClient2.AsyncGET("https://www.youtube.com/",
+		[&webClient2](const CURLcode res)
+		{
+			if (res != CURLE_OK)
+			{
+				std::cerr << "Res: " << res << '\n';
+				return;
+			}
+
+			std::cout << "Got youtube\n";
+		});
+
+	webClient3.AsyncGET("https://goodaids.club/",
+		[&webClient3](const CURLcode res)
+		{
+			if (res != CURLE_OK)
+			{
+				std::cerr << "Res: " << res << '\n';
+				return;
+			}
+
+			std::cout << "Got goodaids\n";
+
+			// and one more
+			webClient3.AsyncGET("https://goodaids.club/",
+				[&webClient3](const CURLcode res)
+				{
+					if (res != CURLE_OK)
+					{
+						std::cerr << "Res: " << res << '\n';
+						return;
+					}
+
+					std::cout << "Got goodaids again\n";
+				});
+		});
+
+	std::cout << "Begin async\n";
+	handle.Run();
+	std::cout << "End async\n";
+
+	std::cout << "Begin sync\n";
+	
+	CURLcode res = webClient.GET("https://www.google.com/");
+	if (res != CURLE_OK)
+		std::cerr << "Res: " << res << '\n';
+
+	std::cout << "Got google\n";
+
+	res = webClient.GET("https://www.google.com/");
+	if (res != CURLE_OK)
+		std::cerr << "Res: " << res << '\n';
+
+	std::cout << "Got google again\n";
+
+	res = webClient.GET("https://www.youtube.com/");
+	if (res != CURLE_OK)
+		std::cerr << "Res: " << res << '\n';
+
+	std::cout << "Got youtube\n";
+
+	res = webClient.GET("https://goodaids.club/");
+	if (res != CURLE_OK)
+		std::cerr << "Res: " << res << '\n';
+
+	std::cout << "Got goodaids\n";
+
+	res = webClient.GET("https://goodaids.club/");
+	if (res != CURLE_OK)
+		std::cerr << "Res: " << res << '\n';
+
+	std::cout << "Got goodaids again\n";
+
+	std::cout << "End sync\n";
 
 	/*curl_global_init(CURL_GLOBAL_WIN32);
 	

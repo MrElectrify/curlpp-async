@@ -18,9 +18,15 @@
     <ClInclude Include="..\..\include\Handle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\WebClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Handle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WebClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
