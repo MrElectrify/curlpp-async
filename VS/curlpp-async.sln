@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcurlpp-async", "libcurlpp-async\libcurlpp-async.vcxproj", "{D1F559CB-013D-49EB-BC22-6AA770B3A76E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "curlpp-asyncTestBench", "curlpp-asyncTestBench\curlpp-asyncTestBench.vcxproj", "{E4A70F74-8380-4DE0-9804-B5177A3425E7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D1F559CB-013D-49EB-BC22-6AA770B3A76E} = {D1F559CB-013D-49EB-BC22-6AA770B3A76E}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

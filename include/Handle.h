@@ -2,28 +2,34 @@
 #define LIBCURLPP_ASYNC_HANDLE
 
 /*
- *  CurlPP-Async Handle
+ *  CURLPP-Async Handle
  *  12/29/19 16:11
  */
 
 #include <curl/curl.h>
 
-namespace CurlPPAsync
+#include <mutex>
+
+namespace CURLPPAsync
 {
     // Handle allows the spawning of WebClients which asynchronously perform web requests
     class Handle
     {
     public:
-        Handle();
-        Handle(Handle&& other);
+        Handle() noexcept;
+        Handle(Handle&& other) noexcept;
 
         Handle(const Handle& other) = delete;
         Handle& operator=(const Handle& other) = delete;
 
-        ~Handle();
+        ~Handle() noexcept;
     private:
-        CURL* m_pCurl;
         CURLM* m_pMulti;
+
+        static std::mutex s_curlMutex;
+
+        static size_t s_refCount;
+        static std::mutex s_refCountMutex;
     };
 }
 
