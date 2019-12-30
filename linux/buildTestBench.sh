@@ -1,0 +1,2 @@
+[ ! -d "bin/" ] && mkdir bin
+g++ --std=c++17 -Wall -I../include -I../dependencies/curl/include/ -I../dependencies/openssl/include/ -Llib -L../dependencies/lib/x64/Release ../src/curlpp-asyncTestBench.cpp -Wl,-Bstatic -lcurlpp-async -lcurl -lz -lssl -lcrypto -Wl,-Bdynamic -ldl -lpthread -obin/curlpp-asyncTestBench

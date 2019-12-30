@@ -154,8 +154,8 @@
     <ClInclude Include="..\..\include\WebClient.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\Handle.cpp" />
     <ClCompile Include="..\..\src\WebClient.cpp" />
-    <ClCompile Include="Handle.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
