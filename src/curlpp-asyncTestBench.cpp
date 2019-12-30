@@ -15,7 +15,7 @@ int main()
 
 	webClient.SetOpt(CURLOPT_FOLLOWLOCATION, true);
 	webClient.AsyncGET("https://google.com/",
-		{}, [&webClient](const CURLcode res)
+		std::vector<WebClient::Header>{}, [&webClient](const CURLcode res)
 		{
 			if (res != CURLE_OK)
 			{

@@ -47,12 +47,7 @@ namespace CURLPPAsync
         static size_t s_refCount;
         static std::mutex s_refCountMutex;
 
-        friend WebClient::WebClient(Handle&) noexcept;
-        friend WebClient::WebClient(WebClient&&) noexcept;
-        friend WebClient& WebClient::operator=(WebClient&&) noexcept;
-        friend WebClient::~WebClient() noexcept;
-        friend CURLcode WebClient::GET(const std::string&, const std::vector<WebClient::Header>&);
-        friend void WebClient::AsyncGET(const std::string&, const std::vector<WebClient::Header>&, WebClient::RecvCallback_t&&);
+        friend class WebClient;
     };
 }
 

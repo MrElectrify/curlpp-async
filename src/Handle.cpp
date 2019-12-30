@@ -159,10 +159,12 @@ void Handle::Run()
 				curl_multi_remove_handle(m_multi, msg->easy_handle);
 
 				callback(msg->data.result);
+
+				// a callback added a task, keep the loop going
+				if (m_callbacks.size() > 0 && 
+					still_running == 0)
+					++still_running;
 			}
 		}
-
-		// call again for any outstanding requests
-		curl_multi_perform(m_multi, &still_running);
 	}
 }
