@@ -40,7 +40,8 @@ WebClient::~WebClient() noexcept
 	curl_easy_cleanup(m_curl);
 }
 
-CURLcode WebClient::GET(const std::string& url) noexcept
+CURLcode WebClient::GET(const std::string& url, 
+	const std::vector<Header>* const pHeaders)
 {
 	curl_easy_setopt(m_curl, CURLOPT_URL, url.data());
 
@@ -51,12 +52,31 @@ CURLcode WebClient::GET(const std::string& url) noexcept
 	curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, &m_data);
 
 	curl_easy_setopt(m_curl, CURLOPT_CAINFO, "cacert.pem");
+
+	// add custom headers if they exist
+	if (pHeaders->size() != 0)
+	{
+		curl_slist* pList = nullptr;
+		for (auto& header : *pHeaders)
+		{
+			// concatenate the headers and add them to a list
+			std::string headerStr = header.m_fieldName + ": " + header.m_data;
+			pList = curl_slist_append(pList, headerStr.c_str());
+		}
+		// set the custom header list
+		curl_easy_setopt(m_curl, CURLOPT_HTTPHEADER, pList);
+	}
+
+	// add the handler
+	if (m_handle.get().m_callbacks.find(m_curl) != m_handle.get().m_callbacks.end())
+		throw std::runtime_error("Only one operation can be done at a time for a given client");
 
 	return curl_easy_perform(m_curl);
 }
 
 void WebClient::AsyncGET(const std::string& url,
-	RecvCallback_t&& recvCallback)
+	RecvCallback_t&& recvCallback, 
+	const std::vector<Header>* const pHeaders)
 {
 	curl_easy_setopt(m_curl, CURLOPT_URL, url.data());
 
@@ -67,6 +87,20 @@ void WebClient::AsyncGET(const std::string& url,
 	curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, &m_data);
 
 	curl_easy_setopt(m_curl, CURLOPT_CAINFO, "cacert.pem");
+
+	// add custom headers if they exist
+	if (pHeaders->size() != 0)
+	{
+		curl_slist* pList = nullptr;
+		for (auto& header : *pHeaders)
+		{
+			// concatenate the headers and add them to a list
+			std::string headerStr = header.m_fieldName + ": " + header.m_data;
+			pList = curl_slist_append(pList, headerStr.c_str());
+		}
+		// set the custom header list
+		curl_easy_setopt(m_curl, CURLOPT_HTTPHEADER, pList);
+	}
 
 	// add the handler
 	if (m_handle.get().m_callbacks.emplace(m_curl, recvCallback).second == false)

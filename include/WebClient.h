@@ -25,6 +25,13 @@ namespace CURLPPAsync
     {
     public:
         using RecvCallback_t = std::function<void(const CURLcode code)>;
+
+        struct Header
+        {
+            std::string m_fieldName;
+            std::string m_data;
+        };
+
         // Creates a webclient with reference to a handle
         WebClient(Handle& handle) noexcept;
 
@@ -38,12 +45,14 @@ namespace CURLPPAsync
         ~WebClient() noexcept;
 
         // Starts a synchronous GET operation on a URL, and returns the result.
-        CURLcode GET(const std::string& url) noexcept; 
+        // Note that there must not already be an in-progress operation on the object.
+        // std::runtime_error will be thrown in this case.
+        CURLcode GET(const std::string& url, const std::vector<Header>* const headers = nullptr);
 
         // Starts an Asynchronous GET operation on a URL, and calls recvCallback on completion.
         // Note that there must not already be an in-progress operation on the object.
         // std::runtime_error will be thrown in this case.
-        void AsyncGET(const std::string& url, RecvCallback_t&& recvCallback);
+        void AsyncGET(const std::string& url, RecvCallback_t&& recvCallback, const std::vector<Header>* const headers = nullptr);
 
         std::string GetData() const { return m_data; }
     private:
