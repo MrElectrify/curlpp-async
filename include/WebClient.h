@@ -64,6 +64,24 @@ namespace CURLPPAsync
         // std::runtime_error will be thrown in this case.
         void AsyncPOST(const std::string& url, const std::string& postData, RecvCallback_t&& recvCallback, const std::vector<Header>* const headers = nullptr);
 
+        // Sets an option
+        template<typename T>
+        void SetOpt(const CURLoption opt, const T& val)
+        {
+            curl_easy_setopt(m_curl, opt, val);
+        }
+
+        // Gets Info
+        template<typename T>
+        T GetInfo(const CURLINFO info)
+        {
+            T val;
+            if (curl_easy_getinfo(m_curl, info, &val) != CURLE_OK)
+                return {};
+
+            return val;
+        }
+
         std::string GetData() const { return m_data; }
         uint32_t GetResponseCode() const { return m_responseCode; }
     private:

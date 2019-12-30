@@ -56,7 +56,8 @@ CURLcode WebClient::GET(const std::string& url,
 	curl_easy_getinfo(m_curl, CURLINFO_RESPONSE_CODE, &m_responseCode);
 
 	// add custom headers if they exist
-	if (pHeaders->size() != 0)
+	if (pHeaders != nullptr &&
+		pHeaders->size() != 0)
 	{
 		curl_slist* pList = nullptr;
 		for (auto& header : *pHeaders)
@@ -93,7 +94,8 @@ void WebClient::AsyncGET(const std::string& url,
 	curl_easy_getinfo(m_curl, CURLINFO_RESPONSE_CODE, &m_responseCode);
 
 	// add custom headers if they exist
-	if (pHeaders->size() != 0)
+	if (pHeaders != nullptr &&
+		pHeaders->size() != 0)
 	{
 		curl_slist* pList = nullptr;
 		for (auto& header : *pHeaders)
