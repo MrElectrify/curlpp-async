@@ -1,3 +1,6 @@
 [submodule "dependencies/curl"]
 	path = dependencies/curl
 	url = https://github.com/curl/curl.git
+[submodule "dependencies/openssl"]
+	path = dependencies/openssl
+	url = https://github.com/openssl/openssl.git
