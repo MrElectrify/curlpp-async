@@ -40,7 +40,7 @@ Handle& Handle::operator=(Handle&& other) noexcept
 	// free multi handle if one already exists
 	if (m_multi != nullptr)
 		curl_multi_cleanup(m_multi);
-	
+
 	m_multi = other.m_multi;
 	other.m_multi = nullptr;
 
@@ -132,7 +132,7 @@ void Handle::Run()
 			{
 				// tell them to try again
 				const CallbackMap_t::value_type::second_type callback = it->second;
-				it = m_callbacks.erase(it); 
+				it = m_callbacks.erase(it);
 				callback(CURLE_AGAIN);
 			}
 			break;
