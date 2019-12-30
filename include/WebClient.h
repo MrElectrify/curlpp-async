@@ -54,12 +54,24 @@ namespace CURLPPAsync
         // std::runtime_error will be thrown in this case.
         void AsyncGET(const std::string& url, RecvCallback_t&& recvCallback, const std::vector<Header>* const headers = nullptr);
 
+        // Starts a synchronous POST operation on a URL, and returns the result.
+        // Note that there must not already be an in-progress operation on the object.
+        // std::runtime_error will be thrown in this case.
+        CURLcode POST(const std::string& url, const std::string& postData, const std::vector<Header>* const headers = nullptr);
+
+        // Starts an Asynchronous POST operation on a URL, and calls recvCallback on completion.
+        // Note that there must not already be an in-progress operation on the object.
+        // std::runtime_error will be thrown in this case.
+        void AsyncPOST(const std::string& url, const std::string& postData, RecvCallback_t&& recvCallback, const std::vector<Header>* const headers = nullptr);
+
         std::string GetData() const { return m_data; }
+        uint32_t GetResponseCode() const { return m_responseCode; }
     private:
         CURL* m_curl;
         std::reference_wrapper<Handle> m_handle;
 
         std::string m_data;
+        uint32_t m_responseCode;
 
         static size_t WriteCallback(char* ptr, size_t size, size_t nmemb, void* userdata);
     };
