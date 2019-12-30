@@ -83,13 +83,11 @@ namespace CURLPPAsync
         }
 
         std::string GetData() const { return m_data; }
-        uint32_t GetResponseCode() const { return m_responseCode; }
     private:
         CURL* m_curl;
         std::reference_wrapper<Handle> m_handle;
 
         std::string m_data;
-        uint32_t m_responseCode;
 
         static size_t WriteCallback(char* ptr, size_t size, size_t nmemb, void* userdata);
     };

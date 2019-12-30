@@ -53,8 +53,6 @@ CURLcode WebClient::GET(const std::string& url,
 
 	curl_easy_setopt(m_curl, CURLOPT_CAINFO, "cacert.pem");
 
-	curl_easy_getinfo(m_curl, CURLINFO_RESPONSE_CODE, &m_responseCode);
-
 	// add custom headers if they exist
 	if (pHeaders != nullptr &&
 		pHeaders->size() != 0)
@@ -90,8 +88,6 @@ void WebClient::AsyncGET(const std::string& url,
 	curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, &m_data);
 
 	curl_easy_setopt(m_curl, CURLOPT_CAINFO, "cacert.pem");
-
-	curl_easy_getinfo(m_curl, CURLINFO_RESPONSE_CODE, &m_responseCode);
 
 	// add custom headers if they exist
 	if (pHeaders != nullptr &&
