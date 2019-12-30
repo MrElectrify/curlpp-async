@@ -1,6 +1,6 @@
-#include <WebClient.h>
+#include <curlpp-async/WebClient.h>
 
-#include <Handle.h>
+#include <curlpp-async/Handle.h>
 
 using CURLPPAsync::Handle;
 using CURLPPAsync::WebClient;
