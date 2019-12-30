@@ -24,7 +24,7 @@ int main()
 			}
 
 			// GetInfo is not guaranteed to return a valid pointer, but let's try it
-			std::cout << "Got google asynchronously, response code: " << webClient.GetInfo<uint32_t>(CURLINFO_RESPONSE_CODE) << ", effective URL: " << webClient.GetInfo<const char*>(CURLINFO_EFFECTIVE_URL) << '\n';
+			std::cout << "Got google asynchronously, response code: " << webClient.GetInfo<long>(CURLINFO_RESPONSE_CODE) << ", effective URL: " << webClient.GetInfo<const char*>(CURLINFO_EFFECTIVE_URL) << '\n';
 		});
 
 	// Start Async operation
@@ -40,7 +40,7 @@ int main()
 	}
 
 	// GetInfo is not guaranteed to return a valid pointer, but let's try it
-	std::cout << "Got google synchronously, response code: " << webClient2.GetInfo<uint32_t>(CURLINFO_RESPONSE_CODE) << ", effective URL: " << webClient2.GetInfo<const char*>(CURLINFO_EFFECTIVE_URL) << '\n';
+	std::cout << "Got google synchronously, response code: " << webClient2.GetInfo<long>(CURLINFO_RESPONSE_CODE) << ", effective URL: " << webClient2.GetInfo<const char*>(CURLINFO_EFFECTIVE_URL) << '\n';
 	
 	return 0;
 }

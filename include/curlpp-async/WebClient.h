@@ -71,13 +71,13 @@ namespace CURLPPAsync
             curl_easy_setopt(m_curl, opt, val);
         }
 
-        // Gets Info
+        // Gets Info. T MUST be char*, long, curl_slist*, or double
         template<typename T>
         T GetInfo(const CURLINFO info)
         {
             T val;
             if (curl_easy_getinfo(m_curl, info, &val) != CURLE_OK)
-                return {};
+                return 0;
 
             return val;
         }
