@@ -114,6 +114,25 @@ void WebClient::AsyncGET(const std::string& url,
 	curl_multi_add_handle(m_handle.get().m_multi, m_curl);
 }
 
+CURLcode WebClient::POST(const std::string& url, 
+	const std::string& postData,
+	const std::vector<Header>* const pHeaders)
+{
+	curl_easy_setopt(m_curl, CURLOPT_POSTFIELDS, postData.c_str());
+
+	return GET(url, pHeaders);
+}
+
+void WebClient::AsyncPOST(const std::string& url,
+	const std::string& postData,
+	RecvCallback_t&& recvCallback,
+	const std::vector<Header>* const pHeaders)
+{
+	curl_easy_setopt(m_curl, CURLOPT_POSTFIELDS, postData.c_str());
+
+	return AsyncGET(url, std::move(recvCallback), pHeaders);
+}
+
 size_t WebClient::WriteCallback(char* ptr, size_t size, size_t nmemb, void* userData)
 {
 	if (nmemb)
