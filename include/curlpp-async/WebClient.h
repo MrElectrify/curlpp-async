@@ -49,34 +49,20 @@ namespace CURLPPAsync
         // std::runtime_error will be thrown in this case.
         CURLcode GET(const std::string& url, const std::vector<Header>& customHeaders);
 
-    private:
-        void AsyncGETImpl(const std::string url, const std::vector<Header> customHeaders, const RecvCallback_t recvCallback);
-    public:
         // Starts an Asynchronous GET operation on a URL, and calls recvCallback on completion.
         // Note that there must not already be an in-progress operation on the object.
         // std::runtime_error will be thrown in this case.
-        template<typename string, typename headerVector, typename RecvCallback>
-        void AsyncGET(string&& url, headerVector&& customHeaders, RecvCallback&& recvCallback)
-        {
-            AsyncGETImpl(std::forward<string>(url), std::forward<headerVector>(customHeaders), std::forward<RecvCallback>(recvCallback));
-        }
+        void AsyncGET(std::string url, std::vector<Header> customHeaders, RecvCallback_t recvCallback);
 
         // Starts a synchronous POST operation on a URL, and returns the result.
         // Note that there must not already be an in-progress operation on the object.
         // std::runtime_error will be thrown in this case.
         CURLcode POST(const std::string& url, const std::string& postData, const std::vector<Header>& customHeaders);
 
-    private:
-        void AsyncPOSTImpl(const std::string url, const std::string postData, const std::vector<Header> customHeaders, const RecvCallback_t recvCallback);
-    public:
         // Starts an Asynchronous POST operation on a URL, and calls recvCallback on completion.
         // Note that there must not already be an in-progress operation on the object.
         // std::runtime_error will be thrown in this case.
-        template<typename string, typename string2, typename headerVector, typename RecvCallback>
-        void AsyncPOST(string&& url, string2&& postData, headerVector&& customHeaders, RecvCallback&& recvCallback)
-        {
-            AsyncPOSTImpl(std::forward<string>(url), std::forward<string2>(postData), std::forward<headerVector>(customHeaders), std::forward<RecvCallback>(recvCallback));
-        }
+        void AsyncPOST(std::string url, std::string postData, std::vector<Header> customHeaders, RecvCallback_t recvCallback);
 
         // Sets an option
         template<typename T>

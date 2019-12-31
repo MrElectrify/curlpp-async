@@ -11,36 +11,20 @@ int main()
 {
 	Handle handle;
 	WebClient webClient(handle);
-	WebClient webClient2(handle);
 
-	webClient.SetOpt(CURLOPT_FOLLOWLOCATION, true);
-	webClient.AsyncGET("https://google.com/",
-		std::vector<WebClient::Header>{}, [&webClient](const CURLcode res)
+	webClient.AsyncPOST("https://postman-echo.com/post", "TEST DATA", {},
+		[&webClient](const CURLcode code)
 		{
-			if (res != CURLE_OK)
+			if (code != CURLE_OK)
 			{
-				std::cerr << "Async Res: " << res << '\n';
+				std::cerr << "Error: " << code << '\n';
 				return;
 			}
 
-			// GetInfo is not guaranteed to return a valid pointer, but let's try it
-			std::cout << "Got google asynchronously, response code: " << webClient.GetInfo<long>(CURLINFO_RESPONSE_CODE) << ", effective URL: " << webClient.GetInfo<const char*>(CURLINFO_EFFECTIVE_URL) << '\n';
+			std::cout << webClient.GetData() << '\n';
 		});
 
-	// Start Async operation
 	handle.Run();
 
-	// now do the same thing, synchronously
-	webClient2.SetOpt(CURLOPT_FOLLOWLOCATION, true);
-	CURLcode res = webClient2.GET("https://google.com/", {});
-	if (res != CURLE_OK)
-	{
-		std::cerr << "Sync Res: " << res << '\n';
-		return 1;
-	}
-
-	// GetInfo is not guaranteed to return a valid pointer, but let's try it
-	std::cout << "Got google synchronously, response code: " << webClient2.GetInfo<long>(CURLINFO_RESPONSE_CODE) << ", effective URL: " << webClient2.GetInfo<const char*>(CURLINFO_EFFECTIVE_URL) << '\n';
-	
 	return 0;
 }

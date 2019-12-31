@@ -2,6 +2,8 @@
 
 #include <curlpp-async/Handle.h>
 
+#include <memory>
+
 using CURLPPAsync::Handle;
 using CURLPPAsync::WebClient;
 
@@ -74,12 +76,15 @@ CURLcode WebClient::GET(const std::string& url,
 	return curl_easy_perform(m_curl);
 }
 
-void WebClient::AsyncGETImpl(const std::string url,
-	const std::vector<Header> headers,
-	const RecvCallback_t recvCallback)
+void WebClient::AsyncGET(std::string url,
+	std::vector<Header> headers,
+	RecvCallback_t recvCallback)
 {
-	// make a copy of the url that will stay in scope
-	curl_easy_setopt(m_curl, CURLOPT_URL, url.c_str());
+	// make a copy of the url and headers that will stay in scope
+	std::shared_ptr<std::string> pUrl = std::make_shared<std::string>(std::move(url));
+	std::shared_ptr<std::vector<Header>> pHeaders = std::make_shared<std::vector<Header>>(std::move(headers));
+
+	curl_easy_setopt(m_curl, CURLOPT_URL, pUrl->c_str());
 
 	// clear data and set
 	m_data.clear();
@@ -90,10 +95,10 @@ void WebClient::AsyncGETImpl(const std::string url,
 	curl_easy_setopt(m_curl, CURLOPT_CAINFO, "cacert.pem");
 
 	// add custom headers if they exist
-	if (headers.size() != 0)
+	if (pHeaders->size() != 0)
 	{
 		curl_slist* pList = nullptr;
-		for (auto& header : headers)
+		for (auto& header : *pHeaders)
 		{
 			// concatenate the headers and add them to a list
 			std::string headerStr = header.m_fieldName + ": " + header.m_data;
@@ -104,7 +109,7 @@ void WebClient::AsyncGETImpl(const std::string url,
 	}
 
 	// add the handler, save url and headers
-	if (m_handle.get().m_callbacks.emplace(m_curl, [url = std::move(url), headers = std::move(headers), recvCallback = std::move(recvCallback)](const CURLcode code) { recvCallback(code); }).second == false)
+	if (m_handle.get().m_callbacks.emplace(m_curl, [pUrl = std::move(pUrl), pHeaders = std::move(pHeaders), recvCallback = std::move(recvCallback)](const CURLcode code) { recvCallback(code); }).second == false)
 		throw std::runtime_error("Only one operation can be done at a time for a given client");
 
 	// add ourselves to multi
@@ -120,13 +125,18 @@ CURLcode WebClient::POST(const std::string& url,
 	return GET(url, headers);
 }
 
-void WebClient::AsyncPOSTImpl(const std::string url,
-	const std::string postData,
-	const std::vector<Header> headers,
-	const RecvCallback_t recvCallback)
+void WebClient::AsyncPOST(std::string url,
+	std::string postData,
+	std::vector<Header> headers,
+	RecvCallback_t recvCallback)
 {
-	curl_easy_setopt(m_curl, CURLOPT_URL, url.c_str());
-	curl_easy_setopt(m_curl, CURLOPT_POSTFIELDS, postData.c_str());
+	// capture url, postData, and headers so they stay in scope
+	std::shared_ptr<std::string> pUrl = std::make_shared<std::string>(std::move(url));
+	std::shared_ptr<std::string> pPostData = std::make_shared<std::string>(std::move(postData));
+	std::shared_ptr<std::vector<Header>> pHeaders = std::make_shared<std::vector<Header>>(std::move(headers));
+
+	curl_easy_setopt(m_curl, CURLOPT_URL, pUrl->c_str());
+	curl_easy_setopt(m_curl, CURLOPT_POSTFIELDS, pPostData->c_str());
 
 	// clear data and set
 	m_data.clear();
@@ -137,10 +147,10 @@ void WebClient::AsyncPOSTImpl(const std::string url,
 	curl_easy_setopt(m_curl, CURLOPT_CAINFO, "cacert.pem");
 
 	// add custom headers if they exist
-	if (headers.size() != 0)
+	if (pHeaders->size() != 0)
 	{
 		curl_slist* pList = nullptr;
-		for (auto& header : headers)
+		for (auto& header : *pHeaders)
 		{
 			// concatenate the headers and add them to a list
 			std::string headerStr = header.m_fieldName + ": " + header.m_data;
@@ -151,7 +161,8 @@ void WebClient::AsyncPOSTImpl(const std::string url,
 	}
 
 	// add the handler
-	if (m_handle.get().m_callbacks.emplace(m_curl, [url = std::move(url), postData = std::move(postData), recvCallback = std::move(recvCallback)](const CURLcode code) { recvCallback(code); }).second == false)
+	if (m_handle.get().m_callbacks.emplace(m_curl, [pUrl = std::move(pUrl), pPostData = std::move(pPostData), pHeaders = std::move(pHeaders), recvCallback = std::move(recvCallback)]
+	(const CURLcode code) { recvCallback(code); }).second == false)
 		throw std::runtime_error("Only one operation can be done at a time for a given client");
 
 	// add ourselves to multi
