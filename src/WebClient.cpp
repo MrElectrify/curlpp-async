@@ -23,8 +23,8 @@ WebClient::WebClient(WebClient&& other) noexcept
 
 WebClient& WebClient::operator=(WebClient&& other) noexcept
 {
-	// remove ourselves from the handle and clean up
-	m_handle.get().m_callbacks.erase(m_curl);
+	// clean up
+	m_handle.get().UnregisterHandle(m_curl);
 	curl_easy_cleanup(m_curl);
 
 	m_curl = other.m_curl;
@@ -38,7 +38,7 @@ WebClient& WebClient::operator=(WebClient&& other) noexcept
 WebClient::~WebClient() noexcept
 {
 	// clean up
-	m_handle.get().m_callbacks.erase(m_curl);
+	m_handle.get().UnregisterHandle(m_curl);
 	curl_easy_cleanup(m_curl);
 }
 
@@ -109,11 +109,10 @@ void WebClient::AsyncGET(std::string url,
 	}
 
 	// add the handler, save url and headers
-	if (m_handle.get().m_callbacks.emplace(m_curl, [pUrl = std::move(pUrl), pHeaders = std::move(pHeaders), recvCallback = std::move(recvCallback)](const CURLcode code) { recvCallback(code); }).second == false)
+	if (m_handle.get().RegisterHandle(m_curl, 
+		[pUrl = std::move(pUrl), pHeaders = std::move(pHeaders), recvCallback = std::move(recvCallback)]
+	(const CURLcode code) { recvCallback(code); }) == false)
 		throw std::runtime_error("Only one operation can be done at a time for a given client");
-
-	// add ourselves to multi
-	curl_multi_add_handle(m_handle.get().m_multi, m_curl);
 }
 
 CURLcode WebClient::POST(const std::string& url, 
@@ -161,12 +160,10 @@ void WebClient::AsyncPOST(std::string url,
 	}
 
 	// add the handler
-	if (m_handle.get().m_callbacks.emplace(m_curl, [pUrl = std::move(pUrl), pPostData = std::move(pPostData), pHeaders = std::move(pHeaders), recvCallback = std::move(recvCallback)]
-	(const CURLcode code) { recvCallback(code); }).second == false)
+	if (m_handle.get().RegisterHandle(m_curl, 
+		[pUrl = std::move(pUrl), pPostData = std::move(pPostData), pHeaders = std::move(pHeaders), recvCallback = std::move(recvCallback)]
+	(const CURLcode code) { recvCallback(code); }) == false)
 		throw std::runtime_error("Only one operation can be done at a time for a given client");
-
-	// add ourselves to multi
-	curl_multi_add_handle(m_handle.get().m_multi, m_curl);
 }
 
 size_t WebClient::WriteCallback(char* ptr, size_t size, size_t nmemb, void* userData)

@@ -20,7 +20,7 @@ namespace CURLPPAsync
     // WebClient is a web client that wraps around a CURL easy handle, which has its own cookies and settings.
     // Despite the name, it can be instantiated and used on its own synchronously with WebClient::{METHOD}. The
     // internal buffer can be fetched with WebClient::GetBuffer, and options can be set with WebClient::SetOpt.
-    // It must be created on the same thread as the handle.
+    // It must be created on the same thread as the handle, and no async operations are thread-safe.
     class WebClient
     {
     public:

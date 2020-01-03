@@ -18,7 +18,7 @@
 
 namespace CURLPPAsync
 {
-    // Handle allows the spawning of WebClients which asynchronously perform web requests
+    // Handle allows the spawning of WebClients which asynchronously perform web requests. Nothing is thread-safe
     class Handle
     {
     public:
@@ -37,10 +37,26 @@ namespace CURLPPAsync
         void Run();
     private:
         using CallbackMap_t = std::unordered_map<CURL*, WebClient::RecvCallback_t>;
+        
+        template<typename Callback_t>
+        bool RegisterHandle(CURL* pCurl, Callback_t&& callback)
+        {
+            const bool res = m_callbacks.emplace(pCurl, std::forward<Callback_t>(callback)).second;
+            
+            // add the cURL handle to multi
+            curl_multi_add_handle(m_multi, pCurl);
+
+            return res;
+        }
+        void UnregisterHandle(CURL* pCurl);
+        CallbackMap_t::const_iterator FindHandle(CURL* pCurl);
 
         CURLM* m_multi;
 
         CallbackMap_t m_callbacks;
+
+        std::mutex m_callbackMutex;
+        std::mutex m_multiMutex;
 
         static std::mutex s_curlMutex;
 

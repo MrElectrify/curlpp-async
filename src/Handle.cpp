@@ -168,3 +168,14 @@ void Handle::Run()
 		}
 	}
 }
+
+void Handle::UnregisterHandle(CURL* pCurl)
+{
+	curl_multi_remove_handle(m_multi, pCurl);
+	m_callbacks.erase(pCurl);
+}
+
+Handle::CallbackMap_t::const_iterator Handle::FindHandle(CURL* pCurl)
+{
+	return m_callbacks.find(pCurl);
+}
