@@ -90,8 +90,6 @@ void WebClient::AsyncGET(std::string url,
 	curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, &WebClient::WriteCallback);
 	curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, &m_data);
 
-	curl_easy_setopt(m_curl, CURLOPT_CAINFO, "cacert.pem");
-
 	// add custom headers if they exist
 	if (pHeaders->size() != 0)
 	{
@@ -140,8 +138,6 @@ void WebClient::AsyncPOST(std::string url,
 
 	curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, &WebClient::WriteCallback);
 	curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, &m_data);
-
-	curl_easy_setopt(m_curl, CURLOPT_CAINFO, "cacert.pem");
 
 	// add custom headers if they exist
 	if (pHeaders->size() != 0)
