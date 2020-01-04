@@ -49,7 +49,7 @@ namespace CURLPPAsync
             return res;
         }
         void UnregisterHandle(CURL* pCurl);
-        CallbackMap_t::const_iterator FindHandle(CURL* pCurl);
+        CallbackMap_t::const_iterator FindHandle(CURL* pCurl) const;
 
         CURLM* m_multi;
 

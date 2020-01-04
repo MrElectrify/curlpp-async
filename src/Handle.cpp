@@ -175,7 +175,7 @@ void Handle::UnregisterHandle(CURL* pCurl)
 	m_callbacks.erase(pCurl);
 }
 
-Handle::CallbackMap_t::const_iterator Handle::FindHandle(CURL* pCurl)
+Handle::CallbackMap_t::const_iterator Handle::FindHandle(CURL* pCurl) const
 {
 	return m_callbacks.find(pCurl);
 }
