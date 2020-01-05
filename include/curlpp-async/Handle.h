@@ -38,7 +38,7 @@ namespace CURLPPAsync
         // Runs all queued asynchronous operations, and returns when they are all complete
         void Run();
         // Runs all queued asynchronous operations, adding operations from a mutex-protected 
-        // queue if they appear before the transfor or mid-transfer. Returns when all are complete 
+        // queue if they appear before the transfer or mid-transfer. Returns when all are complete 
 		// and the queue is empty
         // MidTransferOperationQueue example: std::queue<std::function<void()>>
         // A queue of void returning functions, with front() and pop()
