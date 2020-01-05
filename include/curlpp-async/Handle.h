@@ -13,6 +13,7 @@
 #include <curl/curl.h>
 
 // STL
+#include <atomic>
 #include <mutex>
 #include <queue>
 #include <unordered_map>
@@ -37,7 +38,8 @@ namespace CURLPPAsync
         // Runs all queued asynchronous operations, and returns when they are all complete
         void Run();
         // Runs all queued asynchronous operations, adding operations from a mutex-protected 
-        // queue if they appear mid-transfer. Returns when all are complete and the queue is empty
+        // queue if they appear before the transfor or mid-transfer. Returns when all are complete 
+		// and the queue is empty
         // MidTransferOperationQueue example: std::queue<std::function<void()>>
         // A queue of void returning functions, with front() and pop()
         // Mutex_t example: std::mutex
@@ -45,6 +47,16 @@ namespace CURLPPAsync
         template<typename MidTransferOperationQueue_t, typename Mutex_t>
         void Run(MidTransferOperationQueue_t& midTransferOperationQueue, Mutex_t& mutex)
         {
+			// empty out the operation queue
+			{
+				std::lock_guard opGuard(mutex);
+				while (midTransferOperationQueue.empty() == false)
+				{
+					midTransferOperationQueue.front()();
+					midTransferOperationQueue.pop();
+				}
+			}
+
 			int still_running = 0;
 			// try to perform now
 			curl_multi_perform(m_multi, &still_running);
@@ -176,8 +188,7 @@ namespace CURLPPAsync
 
         static std::mutex s_curlMutex;
 
-        static size_t s_refCount;
-        static std::mutex s_refCountMutex;
+        static std::atomic_size_t s_refCount;
 
         friend WebClient::WebClient(Handle&) noexcept;
         friend WebClient::WebClient(WebClient&&) noexcept;

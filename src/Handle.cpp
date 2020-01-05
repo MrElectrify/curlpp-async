@@ -4,21 +4,14 @@ using CURLPPAsync::Handle;
 
 std::mutex Handle::s_curlMutex;
 
-size_t Handle::s_refCount = 0;
-std::mutex Handle::s_refCountMutex;
+std::atomic_size_t Handle::s_refCount = 0;
 
 Handle::Handle() noexcept
 {
+	if (s_refCount++ == 0)
 	{
-		// static initialization
-		std::lock_guard refCountGuard(s_refCountMutex);
-		if (s_refCount == 0)
-		{
-			std::lock_guard curlGuard(s_curlMutex);
-			curl_global_init(CURL_GLOBAL_DEFAULT);
-		}
-
-		++s_refCount;
+		std::lock_guard curlGuard(s_curlMutex);
+		curl_global_init(CURL_GLOBAL_DEFAULT);
 	}
 
 	m_multi = curl_multi_init();
@@ -29,10 +22,7 @@ Handle::Handle(Handle&& other) noexcept
 	m_multi = other.m_multi;
 	other.m_multi = nullptr;
 
-	{
-		std::lock_guard refCountGuard(s_refCountMutex);
-		++s_refCount;
-	}
+	++s_refCount;
 }
 
 Handle& Handle::operator=(Handle&& other) noexcept
@@ -44,11 +34,6 @@ Handle& Handle::operator=(Handle&& other) noexcept
 	m_multi = other.m_multi;
 	other.m_multi = nullptr;
 
-	{
-		std::lock_guard refCountGuard(s_refCountMutex);
-		++s_refCount;
-	}
-
 	return *this;
 }
 
@@ -57,16 +42,10 @@ Handle::~Handle() noexcept
 	if (m_multi != nullptr)
 		curl_multi_cleanup(m_multi);
 
+	if (--s_refCount == 0)
 	{
-		// static deinitialization
-		std::lock_guard refCountGuard(s_refCountMutex);
-		--s_refCount;
-
-		if (s_refCount == 0)
-		{
-			std::lock_guard curlGuard(s_curlMutex);
-			curl_global_cleanup();
-		}
+		std::lock_guard curlGuard(s_curlMutex);
+		curl_global_cleanup();
 	}
 }
 
