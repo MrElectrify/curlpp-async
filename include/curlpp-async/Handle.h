@@ -187,9 +187,8 @@ namespace CURLPPAsync
         std::mutex m_callbackMutex;
         std::mutex m_multiMutex;
 
-        static std::mutex s_curlMutex;
-
-        static std::atomic_size_t s_refCount;
+		static std::mutex& GetCURLMutex();
+		static std::atomic_size_t& GetRefCount();
 
         friend WebClient::WebClient(Handle&) noexcept;
         friend WebClient::WebClient(WebClient&&) noexcept;

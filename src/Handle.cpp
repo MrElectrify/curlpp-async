@@ -2,15 +2,11 @@
 
 using CURLPPAsync::Handle;
 
-std::mutex Handle::s_curlMutex;
-
-std::atomic_size_t Handle::s_refCount = 0;
-
 Handle::Handle() noexcept
 {
-	if (s_refCount++ == 0)
+	if (GetRefCount()++ == 0)
 	{
-		std::lock_guard curlGuard(s_curlMutex);
+		std::lock_guard curlGuard(GetCURLMutex());
 		curl_global_init(CURL_GLOBAL_DEFAULT);
 	}
 
@@ -22,7 +18,7 @@ Handle::Handle(Handle&& other) noexcept
 	m_multi = other.m_multi;
 	other.m_multi = nullptr;
 
-	++s_refCount;
+	++GetRefCount();
 }
 
 Handle& Handle::operator=(Handle&& other) noexcept
@@ -42,9 +38,9 @@ Handle::~Handle() noexcept
 	if (m_multi != nullptr)
 		curl_multi_cleanup(m_multi);
 
-	if (--s_refCount == 0)
+	if (--GetRefCount() == 0)
 	{
-		std::lock_guard curlGuard(s_curlMutex);
+		std::lock_guard curlGuard(GetCURLMutex());
 		curl_global_cleanup();
 	}
 }
@@ -155,4 +151,16 @@ void Handle::UnregisterHandle(CURL* pCurl)
 Handle::CallbackMap_t::const_iterator Handle::FindHandle(CURL* pCurl) const
 {
 	return m_callbacks.find(pCurl);
+}
+
+std::mutex& Handle::GetCURLMutex()
+{
+	static std::mutex s_curlMutex;
+	return s_curlMutex;
+}
+
+std::atomic_size_t& Handle::GetRefCount()
+{
+	static std::atomic_size_t s_refCount = 0;
+	return s_refCount;
 }
