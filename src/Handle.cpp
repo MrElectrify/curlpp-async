@@ -104,8 +104,8 @@ void Handle::Run()
 		else
 			rc = select(maxfd + 1, &fdread, &fdwrite, &fdexcep, &timeout);
 
-		switch (rc) {
-		case -1:
+		if (rc == -1)
+		{
 			// select failed, call all handlers with the error
 			for (CallbackMap_t::iterator it = m_callbacks.begin(); it != m_callbacks.end(); ++it)
 			{
@@ -115,12 +115,10 @@ void Handle::Run()
 				callback(CURLE_AGAIN);
 			}
 			break;
-		case 0:
-		default:
-			// timeout or readable/writable sockets
-			curl_multi_perform(m_multi, &still_running);
-			break;
 		}
+
+		// timeout or readable/writable sockets
+		curl_multi_perform(m_multi, &still_running);
 
 		// check the transfers and see how they went
 		int msgs_left;

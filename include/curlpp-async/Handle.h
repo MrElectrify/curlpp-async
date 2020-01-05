@@ -47,21 +47,21 @@ namespace CURLPPAsync
         template<typename MidTransferOperationQueue_t, typename Mutex_t>
         void Run(MidTransferOperationQueue_t& midTransferOperationQueue, Mutex_t& mutex)
         {
-			// empty out the operation queue
-			{
-				std::lock_guard opGuard(mutex);
-				while (midTransferOperationQueue.empty() == false)
-				{
-					midTransferOperationQueue.front()();
-					midTransferOperationQueue.pop();
-				}
-			}
-
 			int still_running = 0;
-			// try to perform now
-			curl_multi_perform(m_multi, &still_running);
-			while (still_running != 0)
+			while (true)
 			{
+				// empty out the operation queue
+				{
+					std::lock_guard opGuard(mutex);
+					while (midTransferOperationQueue.empty() == false)
+					{
+						midTransferOperationQueue.front()();
+						midTransferOperationQueue.pop();
+					}
+				}
+
+				curl_multi_perform(m_multi, &still_running);
+
 				timeval timeout;
 				fd_set fdread;
 				fd_set fdwrite;
@@ -110,8 +110,8 @@ namespace CURLPPAsync
 				else
 					rc = select(maxfd + 1, &fdread, &fdwrite, &fdexcep, &timeout);
 
-				switch (rc) {
-				case -1:
+				if (rc == -1)
+				{
 					// select failed, call all handlers with the error
 					for (CallbackMap_t::iterator it = m_callbacks.begin(); it != m_callbacks.end(); ++it)
 					{
@@ -121,12 +121,10 @@ namespace CURLPPAsync
 						callback(CURLE_AGAIN);
 					}
 					break;
-				case 0:
-				default:
-					// timeout or readable/writable sockets
-					curl_multi_perform(m_multi, &still_running);
-					break;
 				}
+
+				// timeout or readable/writable sockets
+				curl_multi_perform(m_multi, &still_running);
 
 				// check the transfers and see how they went
 				int msgs_left;
@@ -161,6 +159,9 @@ namespace CURLPPAsync
 						++still_running;
 					}
 				}
+				
+				if (still_running == 0)
+					break;
 			}
         }
     private:
