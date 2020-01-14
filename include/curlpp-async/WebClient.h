@@ -63,14 +63,14 @@ namespace CURLPPAsync
 
         // Sets an option
         template<typename T>
-        void SetOpt(const CURLoption opt, const T& val)
+        void SetOpt(const CURLoption opt, const T& val) noexcept
         {
             curl_easy_setopt(m_curl, opt, val);
         }
 
         // Gets Info. T MUST be char*, long, curl_slist*, or double
         template<typename T>
-        T GetInfo(const CURLINFO info)
+        T GetInfo(const CURLINFO info) noexcept
         {
             T val;
             if (curl_easy_getinfo(m_curl, info, &val) != CURLE_OK)
