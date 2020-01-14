@@ -43,7 +43,7 @@ WebClient::~WebClient() noexcept
 }
 
 CURLcode WebClient::GET(const std::string& url, 
-	const std::vector<Header>& headers)
+	const std::vector<Header>& headers) noexcept
 {
 	curl_easy_setopt(m_curl, CURLOPT_URL, url.data());
 
@@ -72,7 +72,7 @@ CURLcode WebClient::GET(const std::string& url,
 
 void WebClient::AsyncGET(std::string url,
 	std::vector<Header> headers,
-	RecvCallback_t recvCallback)
+	RecvCallback_t recvCallback) noexcept
 {
 	// make a copy of the url and headers that will stay in scope
 	std::shared_ptr<std::string> pUrl = std::make_shared<std::string>(std::move(url));
@@ -101,15 +101,14 @@ void WebClient::AsyncGET(std::string url,
 	}
 
 	// add the handler, save url and headers
-	if (m_handle.get().RegisterHandle(m_curl, 
+	m_handle.get().RegisterHandle(m_curl,
 		[pUrl = std::move(pUrl), pHeaders = std::move(pHeaders), recvCallback = std::move(recvCallback)]
-	(const CURLcode code) { recvCallback(code); }) == false)
-		throw std::runtime_error("Only one operation can be done at a time for a given client");
+	(const CURLcode code) { recvCallback(code); });
 }
 
 CURLcode WebClient::POST(const std::string& url, 
 	const std::string& postData,
-	const std::vector<Header>& headers)
+	const std::vector<Header>& headers) noexcept
 {
 	curl_easy_setopt(m_curl, CURLOPT_POSTFIELDS, postData.c_str());
 
@@ -119,7 +118,7 @@ CURLcode WebClient::POST(const std::string& url,
 void WebClient::AsyncPOST(std::string url,
 	std::string postData,
 	std::vector<Header> headers,
-	RecvCallback_t recvCallback)
+	RecvCallback_t recvCallback) noexcept
 {
 	// capture url, postData, and headers so they stay in scope
 	std::shared_ptr<std::string> pUrl = std::make_shared<std::string>(std::move(url));
@@ -150,10 +149,9 @@ void WebClient::AsyncPOST(std::string url,
 	}
 
 	// add the handler
-	if (m_handle.get().RegisterHandle(m_curl, 
+	m_handle.get().RegisterHandle(m_curl, 
 		[pUrl = std::move(pUrl), pPostData = std::move(pPostData), pHeaders = std::move(pHeaders), recvCallback = std::move(recvCallback)]
-	(const CURLcode code) { recvCallback(code); }) == false)
-		throw std::runtime_error("Only one operation can be done at a time for a given client");
+	(const CURLcode code) { recvCallback(code); });
 }
 
 size_t WebClient::WriteCallback(char* ptr, size_t size, size_t nmemb, void* userData)

@@ -47,23 +47,19 @@ namespace CURLPPAsync
 
         // Starts a synchronous GET operation on a URL, and returns the result.
         // Note that there must not already be an in-progress operation on the object.
-        // std::runtime_error will be thrown in this case.
-        CURLcode GET(const std::string& url, const std::vector<Header>& customHeaders);
+        CURLcode GET(const std::string& url, const std::vector<Header>& customHeaders) noexcept;
 
         // Starts an Asynchronous GET operation on a URL, and calls recvCallback on completion.
         // Note that there must not already be an in-progress operation on the object.
-        // std::runtime_error will be thrown in this case.
-        void AsyncGET(std::string url, std::vector<Header> customHeaders, RecvCallback_t recvCallback);
+        void AsyncGET(std::string url, std::vector<Header> customHeaders, RecvCallback_t recvCallback) noexcept;
 
         // Starts a synchronous POST operation on a URL, and returns the result.
         // Note that there must not already be an in-progress operation on the object.
-        // std::runtime_error will be thrown in this case.
-        CURLcode POST(const std::string& url, const std::string& postData, const std::vector<Header>& customHeaders);
+        CURLcode POST(const std::string& url, const std::string& postData, const std::vector<Header>& customHeaders) noexcept;
 
         // Starts an Asynchronous POST operation on a URL, and calls recvCallback on completion.
         // Note that there must not already be an in-progress operation on the object.
-        // std::runtime_error will be thrown in this case.
-        void AsyncPOST(std::string url, std::string postData, std::vector<Header> customHeaders, RecvCallback_t recvCallback);
+        void AsyncPOST(std::string url, std::string postData, std::vector<Header> customHeaders, RecvCallback_t recvCallback) noexcept;
 
         // Sets an option
         template<typename T>
