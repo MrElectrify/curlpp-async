@@ -79,7 +79,7 @@ namespace CURLPPAsync
             return val;
         }
 
-        const std::string& GetData() const { return m_data; }
+        const std::string& GetData() const noexcept { return m_data; }
     private:
         CURL* m_curl;
         std::reference_wrapper<Handle> m_handle;
