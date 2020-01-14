@@ -49,7 +49,10 @@ void Handle::Run()
 {
 	int still_running = 0;
 	// try to perform now
-	curl_multi_perform(m_multi, &still_running);
+	{
+		std::lock_guard multiLock(m_multiMutex);
+		curl_multi_perform(m_multi, &still_running);
+	}
 	while (still_running != 0)
 	{
 		timeval timeout;
@@ -60,7 +63,10 @@ void Handle::Run()
 
 		long curl_timeo;
 
-		curl_multi_timeout(m_multi, &curl_timeo);
+		{
+			std::lock_guard multiLock(m_multiMutex);
+			curl_multi_timeout(m_multi, &curl_timeo);
+		}
 		if (curl_timeo < 0)
 			curl_timeo = 1000;
 
@@ -71,8 +77,12 @@ void Handle::Run()
 		FD_ZERO(&fdwrite);
 		FD_ZERO(&fdexcep);
 
+		CURLMcode mc;
 		// get file descriptors from the transfers 
-		CURLMcode mc = curl_multi_fdset(m_multi, &fdread, &fdwrite, &fdexcep, &maxfd);
+		{
+			std::lock_guard multiLock(m_multiMutex);
+			mc = curl_multi_fdset(m_multi, &fdread, &fdwrite, &fdexcep, &maxfd);
+		}
 		if (mc != CURLM_OK)
 		{
 			// fdset failed, call all handlers with the error
@@ -114,13 +124,22 @@ void Handle::Run()
 		}
 
 		// timeout or readable/writable sockets
-		curl_multi_perform(m_multi, &still_running);
+		{
+			std::lock_guard multiLock(m_multiMutex);
+			curl_multi_perform(m_multi, &still_running);
+		}
 
 		// check the transfers and see how they went
 		int msgs_left;
 		CURLMsg* msg;
-		while ((msg = curl_multi_info_read(m_multi, &msgs_left)) != nullptr)
+		while (true)
 		{
+			{
+				std::lock_guard multiLock(m_multiMutex);
+				msg = curl_multi_info_read(m_multi, &msgs_left);
+			}
+			if (msg == nullptr)
+				break;
 			if (msg->msg == CURLMSG_DONE)
 			{
 				// find the callback (which should always be present), call it, and remove it
@@ -129,7 +148,10 @@ void Handle::Run()
 				m_callbacks.erase(callbackIt);
 
 				// remove the handle
-				curl_multi_remove_handle(m_multi, msg->easy_handle);
+				{
+					std::lock_guard multiLock(m_multiMutex);
+					curl_multi_remove_handle(m_multi, msg->easy_handle);
+				}
 
 				callback(msg->data.result);
 
@@ -142,15 +164,34 @@ void Handle::Run()
 	}
 }
 
-void Handle::UnregisterHandle(CURL* pCurl)
+bool Handle::RegisterHandle(CURL* pCurl, WebClient::RecvCallback_t callback)
 {
-	curl_multi_remove_handle(m_multi, pCurl);
-	m_callbacks.erase(pCurl);
+	bool res;
+	{
+		std::lock_guard callbackGuard(m_callbackMutex);
+		res = m_callbacks.emplace(pCurl, callback).second;
+	}
+	if (res == false)
+		return res;
+	// add the cURL handle to multi
+	{
+		std::lock_guard multiGuard(m_multiMutex);
+		curl_multi_add_handle(m_multi, pCurl);
+	}
+
+	return res;
 }
 
-Handle::CallbackMap_t::const_iterator Handle::FindHandle(CURL* pCurl) const
+void Handle::UnregisterHandle(CURL* pCurl)
 {
-	return m_callbacks.find(pCurl);
+	{
+		std::lock_guard multiLock(m_multiMutex);
+		curl_multi_remove_handle(m_multi, pCurl);
+	}
+	{
+		std::lock_guard callbackLock(m_callbackMutex);
+		m_callbacks.erase(pCurl);
+	}
 }
 
 std::mutex& Handle::GetCURLMutex()

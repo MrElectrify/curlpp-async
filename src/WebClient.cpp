@@ -67,10 +67,6 @@ CURLcode WebClient::GET(const std::string& url,
 		curl_easy_setopt(m_curl, CURLOPT_HTTPHEADER, pList);
 	}
 
-	// add the handler
-	if (m_handle.get().m_callbacks.find(m_curl) != m_handle.get().m_callbacks.end())
-		throw std::runtime_error("Only one operation can be done at a time for a given client");
-
 	return curl_easy_perform(m_curl);
 }
 
