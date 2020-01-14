@@ -42,7 +42,7 @@ namespace CURLPPAsync
         WebClient(const WebClient& other) = delete;
         WebClient& operator=(const WebClient& other) = delete;
 
-        // Cancels any async operations and calls the handler with
+        // Cancels any async operations. Does not call any handler
         ~WebClient() noexcept;
 
         // Starts a synchronous GET operation on a URL, and returns the result.
