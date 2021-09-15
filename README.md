@@ -2,7 +2,7 @@
 cURLPP-Async was designed for cURL 7.67.0, and this is the only version with guaranteed support. It only performs `GET` and `POST` requests currently.
 
 ## Notice
-This is a naive asynchronous solution that uses threads. For a proper solution that integrates with `asio`, check out [this repository](https://github.com/MrElectrify/curl-multi-asio).
+This is a naive asynchronous solution that uses a worker thread. For a proper solution that integrates with `asio`, check out [this repository](https://github.com/MrElectrify/curl-multi-asio).
 
 ## CURLPPASYNC::Handle
 `Handle` is a wrapper for `CURLM*`. It acts as the main actor in the proactor design for `curl_multi`.
