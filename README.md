@@ -1,3 +1,5 @@
+# DEPRECATED! If you are sane, use [this one](https://github.com/MrElectrify/curl-multi-asio) instead!
+
 # curlpp-async
 cURLPP-Async was designed for cURL 7.67.0, and this is the only version with guaranteed support. It only performs `GET` and `POST` requests currently.
 
